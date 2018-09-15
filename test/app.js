@@ -1,5 +1,5 @@
 const request = require("supertest"),
-  app = require("../src/app")
+  app = require("..")
 
 describe("app:/", () => {
   context("when route is unmatched", () =>

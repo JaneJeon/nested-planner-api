@@ -596,7 +596,7 @@ cookie@0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.3.1.tgz#e7e0a1f9ef43b4c8ba925c5c5a96e806d16873bb"
 
-cookiejar@^2.1.0:
+cookiejar@^2.0.1, cookiejar@^2.1.0:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/cookiejar/-/cookiejar-2.1.2.tgz#dd8a235530752f988f9a0844f3fc589e3111125c"
 
@@ -877,6 +877,10 @@ expand-tilde@^2.0.0, expand-tilde@^2.0.2:
 expect-ct@0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/expect-ct/-/expect-ct-0.1.1.tgz#de84476a2dbcb85000d5903737e9bc8a5ba7b897"
+
+express-async-errors@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/express-async-errors/-/express-async-errors-3.0.0.tgz#457d06952504718276697cebf9c332bccf2944dd"
 
 express-session@^1.15.6:
   version "1.15.6"
@@ -2134,7 +2138,7 @@ nyc@^13.0.1:
     yargs "11.1.0"
     yargs-parser "^9.0.2"
 
-object-assign@^4, object-assign@^4.1.0:
+object-assign@^4, object-assign@^4.0.1, object-assign@^4.1.0:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
 
@@ -2980,7 +2984,16 @@ superagent@^3.8.3:
     qs "^6.5.1"
     readable-stream "^2.3.5"
 
-supertest@^3.3.0:
+supertest-session@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/supertest-session/-/supertest-session-3.3.0.tgz#37a71541e054db307bbbfbfec8335909a6e6c913"
+  dependencies:
+    cookiejar "^2.0.1"
+    methods "^1.1.1"
+    object-assign "^4.0.1"
+    supertest "^3.1.0"
+
+supertest@^3.1.0, supertest@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/supertest/-/supertest-3.3.0.tgz#79b27bd7d34392974ab33a31fa51a3e23385987e"
   dependencies:
@@ -3215,10 +3228,6 @@ validate-npm-package-license@^3.0.1:
   dependencies:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
-
-validator@^10.7.1:
-  version "10.7.1"
-  resolved "https://registry.yarnpkg.com/validator/-/validator-10.7.1.tgz#dd4cc750c2134ce4a15a2acfc7b233669d659c5b"
 
 vary@^1, vary@~1.1.2:
   version "1.1.2"

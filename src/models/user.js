@@ -1,5 +1,4 @@
-const { Model, ValidationError } = require("objection"),
-  isEmail = require("validator/lib/isEmail"),
+const { Model } = require("objection"),
   argon2 = require("argon2")
 
 class User extends Model {
@@ -7,11 +6,16 @@ class User extends Model {
     return "users"
   }
 
-  $afterValidate(user) {
-    if (user.email && !isEmail(user.email))
-      throw new ValidationError("Invalid email")
-    if (user.password && user.password.length < process.env.PASSWORD_LENGTH)
-      throw new ValidationError("Invalid password length")
+  static get jsonSchema() {
+    return {
+      type: "object",
+      required: ["username", "email", "password"],
+      properties: {
+        username: { type: "string", minLength: 1 },
+        email: { type: "string", format: "email" },
+        password: { type: "string", minLength: process.env.PASSWORD_LENGTH }
+      }
+    }
   }
 
   async $beforeInsert(queryContext) {
@@ -21,8 +25,7 @@ class User extends Model {
 
   async $beforeUpdate(opt, queryContext) {
     await super.$beforeUpdate(opt, queryContext)
-    if (opt.patch && this.password)
-      this.password = await argon2.hash(this.password)
+    if (this.password) this.password = await argon2.hash(this.password)
   }
 
   async verifyPassword(password) {

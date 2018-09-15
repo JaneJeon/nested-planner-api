@@ -1,5 +1,5 @@
 const request = require("supertest"),
-  app = require("../../src/app"),
+  app = require("../.."),
   agent = request.agent(app)
 
 describe("app:/users", () => {
@@ -26,7 +26,7 @@ describe("app:/users", () => {
               email: "me@example.com",
               password: "123456789"
             })
-            .expect(409, { error: "Email address is already taken" }))
+            .expect(409))
       )
     })
 
@@ -45,25 +45,13 @@ describe("app:/users", () => {
 
   describe("PATCH /", () => {
     context("when the user is authenticated", () => {
-      context("when params are valid", () => {
-        it("should update username", async () =>
+      context("when params are valid", () =>
+        it("should update params", async () =>
           agent
             .patch("/users")
-            .send({ username: "Jane" })
+            .send({ email: "me2@example.com", password: "987654321" })
             .expect(200))
-
-        it("should update email", async () =>
-          agent
-            .patch("/users")
-            .send({ email: "me2@example.com" })
-            .expect(200))
-
-        it("should update password", async () =>
-          agent
-            .patch("/users")
-            .send({ password: "987654321" })
-            .expect(200))
-      })
+      )
 
       context("when params are invalid", () =>
         it("should reject", async () =>
@@ -84,9 +72,9 @@ describe("app:/users", () => {
   })
 
   describe("DELETE /", () => {
-    context("when the user is authenticated", () => {
+    context("when the user is authenticated", () =>
       it("should delete user", async () => agent.delete("/users").expect(200))
-    })
+    )
 
     context("when user is unauthenticated", () =>
       it("should reject", async () =>

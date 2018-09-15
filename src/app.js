@@ -6,7 +6,10 @@ const { Model } = require("objection"),
   User = require("./models/user"),
   winston = require("winston"),
   session = require("express-session"),
-  RedisStore = require("connect-redis")(session)
+  RedisStore = require("connect-redis")(session),
+  express = require("express")
+
+require("express-async-errors")
 
 Model.knex(require("knex")(require("../knexfile")))
 
@@ -14,6 +17,7 @@ passport.serializeUser((user, done) => done(null, user.id))
 passport.deserializeUser(async (id, done) =>
   done(null, await User.query().findById(id))
 )
+
 passport.use(
   new Strategy({ usernameField: "email" }, async (email, password, done) => {
     const user = await User.query().findOne({ email })
@@ -44,7 +48,7 @@ else if (process.env.NODE_ENV == "production")
     })
   )
 
-const app = require("express")()
+const app = express()
   .use(require("helmet")())
   .use(require("cors")())
   .use(require("body-parser").json())
@@ -76,8 +80,19 @@ if (process.env.NODE_ENV == "test")
 app
   .use("*", (req, res) => res.sendStatus(404))
   .use((err, req, res, next) => {
+    if (err.name == "ValidationError")
+      return res.status(400).send({ error: err.message })
+    else if (
+      err.code == "42703" || // undefined column
+      err.code == "22P02" || // wrong data type
+      err.message.includes("Empty .update() call detected!")
+    )
+      return res.sendStatus(400)
+    // unique field violation
+    else if (err.code == "23505") return res.sendStatus(409)
+
     log.error(err)
-    res.status(500).send({ error: err.message })
+    res.sendStatus(500)
   })
   .listen(process.env.PORT, err => {
     if (err) log.error(err)
