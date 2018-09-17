@@ -1,0 +1,10 @@
+- [x] Remove all `req.$method()` tests from individual routes
+- [x] Remove all parameter checking tests from individual routes
+- [x] Move all parameter checking tests into `app`
+    - [x] Make 409 return what conflicted
+    - [x] Make 400 return why the request failed
+- [x] Consider whether `{additionalProperties: false}` should include `id` in it as well, and fix the seeds accordingly
+- [x] Remove foreign key reference options from `req.body`
+    - [x] Add tests ensuring that people can't mess with `id`, `user_id`, and `notebook_id`
+- [x] Make every successful `POST/PATCH` requests return the full resource object
+- [ ] Write tests for `items` route

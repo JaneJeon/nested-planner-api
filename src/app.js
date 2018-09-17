@@ -4,10 +4,12 @@ const { Model } = require("objection"),
   passport = require("passport"),
   { Strategy } = require("passport-local"),
   User = require("./models/user"),
-  winston = require("winston"),
+  Notebook = require("./models/notebook"),
+  Item = require("./models/item"),
   session = require("express-session"),
   RedisStore = require("connect-redis")(session),
-  express = require("express")
+  express = require("express"),
+  parser = require("body-parser")
 
 require("express-async-errors")
 
@@ -27,36 +29,11 @@ passport.use(
   })
 )
 
-const log = winston.createLogger({
-  transports: [
-    new winston.transports.File({
-      filename: "logs/error.log",
-      level: "error",
-      handleExceptions: true,
-      format: winston.format.simple()
-    })
-  ]
-})
-
-if (process.env.NODE_ENV == "development")
-  log.add(new winston.transports.Console({ format: winston.format.simple() }))
-else if (process.env.NODE_ENV == "production")
-  log.add(
-    new winston.transports.File({
-      filename: "logs/access.log",
-      format: winston.format.simple()
-    })
-  )
-
 const app = express()
   .use(require("helmet")())
   .use(require("cors")())
-  .use(require("body-parser").json())
-  .use(
-    require("morgan")(process.env.LOG_FORMAT, {
-      stream: { write: msg => log.info(msg.slice(0, -1)) }
-    })
-  )
+  .use(parser.json())
+  .use(parser.urlencoded({ extended: false }))
   .use(
     session({
       secret: process.env.SESSION_SECRET,
@@ -67,35 +44,77 @@ const app = express()
   )
   .use(passport.initialize())
   .use(passport.session())
+  // helper middlewares
+  .use((req, res, next) => {
+    if (req.body.hasOwnProperty("id"))
+      throw { code: 400, message: "Cannot set property 'id'" }
+    if (req.body.hasOwnProperty("user_id"))
+      throw { code: 400, message: "Cannot set property 'user_id'" }
+    if (req.body.hasOwnProperty("notebook_id"))
+      throw { code: 400, message: "Cannot set property 'notebook_id'" }
+
+    req.ensureUserIsSignedIn = function() {
+      if (!this.user) throw { code: 401 }
+    }
+    req.ensureNotebookBelongsToUser = async function() {
+      const notebook = await Notebook.query().findById(this.params.notebookId)
+
+      if (!notebook) throw { code: 404 }
+      if (this.user.id != notebook.user_id) throw { code: 403 }
+    }
+    req.ensureItemBelongsToNotebook = async function() {
+      const item = await Item.query().findById(this.params.itemId)
+
+      if (!item) throw { code: 404 }
+      if (this.params.notebookId != item.notebook_id) throw { code: 403 }
+    }
+
+    next()
+  })
   .use("/sessions", require("./routes/sessions"))
   .use("/users", require("./routes/users"))
   .use("/notebooks", require("./routes/notebooks"))
-  .use("/items", require("./routes/items"))
+  .use("/notebooks/:notebookId/items", require("./routes/items"))
 
 if (process.env.NODE_ENV == "test")
-  app.get("/error", () => {
-    throw new Error()
-  })
+  app
+    .post("/", (req, res) => res.end())
+    .get("/error", () => {
+      throw new Error()
+    })
+    .get("/test", (req, res) => {
+      req.ensureUserIsSignedIn()
+      res.end()
+    })
+    .get("/test/:notebookId", async (req, res) => {
+      await req.ensureNotebookBelongsToUser()
+      res.end()
+    })
+    .get("/test/:notebookId/:itemId", async (req, res) => {
+      await req.ensureItemBelongsToNotebook()
+      res.end()
+    })
 
 app
   .use("*", (req, res) => res.sendStatus(404))
   .use((err, req, res, next) => {
-    if (err.name == "ValidationError")
+    if (err.name == "ValidationError" || err.code == 400)
       return res.status(400).send({ error: err.message })
-    else if (
-      err.code == "42703" || // undefined column
-      err.code == "22P02" || // wrong data type
-      err.message.includes("Empty .update() call detected!")
-    )
-      return res.sendStatus(400)
-    // unique field violation
-    else if (err.code == "23505") return res.sendStatus(409)
+    else if (err.code > 400 && err.code < 500) return res.sendStatus(err.code)
+    // someone intentionally passed in invalid id types into path parameters
+    else if (err.code == "22P02")
+      return res
+        .status(400)
+        .send({ error: err.message.substr(err.message.indexOf("invalid")) })
+    // unique constraint violation
+    else if (err.code == 23505)
+      return res.status(409).send({ error: err.detail })
 
-    log.error(err)
+    if (process.env.NODE_ENV != "test") console.error(err)
     res.sendStatus(500)
   })
   .listen(process.env.PORT, err => {
-    if (err) log.error(err)
+    if (err) console.error(err)
   })
 
 module.exports = app

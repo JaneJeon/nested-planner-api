@@ -3,7 +3,7 @@ require("dotenv").config()
 module.exports = {
   client: "pg",
   connection: process.env.DATABASE_URL,
-  debug: process.env.NODE_ENV == "development",
+  debug: (process.env.DEBUG || "").includes("knex"),
   positionTrigger: table => `
     CREATE OR REPLACE FUNCTION set_pos() RETURNS TRIGGER AS $$
       BEGIN

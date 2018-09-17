@@ -9,9 +9,10 @@ class User extends Model {
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["username", "email", "password"],
+      required: ["email", "password"],
+      additionalProperties: false,
       properties: {
-        username: { type: "string", minLength: 1 },
+        id: { type: "integer", minimum: 1 },
         email: { type: "string", format: "email" },
         password: { type: "string", minLength: process.env.PASSWORD_LENGTH }
       }

@@ -1,15 +1,15 @@
-const router = require("express").Router(),
+const { Router } = require("express"),
   User = require("../models/user")
 
-module.exports = router
+module.exports = Router()
   // create user
   .post("/", async (req, res) => {
     const user = await User.query().insert(req.body)
 
-    req.login(user, () => res.sendStatus(201))
+    req.login(user, () => res.sendStatus(204))
   })
   .use((req, res, next) => {
-    if (!req.user) res.sendStatus(401)
+    req.ensureUserIsSignedIn()
     next()
   })
   // update user info
@@ -18,12 +18,12 @@ module.exports = router
       .patch(req.body)
       .where("id", req.user.id)
 
-    res.end()
+    res.sendStatus(204)
   })
   // close account
   .delete("/", async (req, res) => {
     await User.query().deleteById(req.user.id)
 
     req.logout()
-    res.end()
+    res.sendStatus(204)
   })

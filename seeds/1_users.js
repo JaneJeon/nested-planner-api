@@ -2,10 +2,8 @@ const User = require("../src/models/user"),
   user = {
     id: 1,
     email: "test@example.com",
-    password: "123456789",
-    username: "John Doe"
+    password: "123456789"
   }
-Object.freeze(user)
 
 exports.user = user
 
@@ -19,8 +17,7 @@ exports.seed = async knex => {
     {
       id: 2,
       email: "test2@example.com",
-      password: "123123123",
-      username: "Jane Doe"
+      password: "123123123"
     }
   ])
 }

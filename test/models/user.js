@@ -12,7 +12,6 @@ describe("models:User", () => {
   context("on insert/update", () => {
     it("should hash the password and match it", async () => {
       let user = await User.query().insert({
-        username: "Jane",
         email: "me2@example.com",
         password: "password1"
       })

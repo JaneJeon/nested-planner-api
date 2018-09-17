@@ -1,13 +1,11 @@
-const router = require("express").Router(),
+const { Router } = require("express"),
   passport = require("passport")
 
-module.exports = router
+module.exports = Router()
   // login
-  .post("/", passport.authenticate("local"), (req, res) =>
-    res.status(201).send({ username: req.user.username })
-  )
+  .post("/", passport.authenticate("local"), (req, res) => res.sendStatus(204))
   // logout
   .delete("/", (req, res) => {
     req.logout()
-    res.end()
+    res.sendStatus(204)
   })

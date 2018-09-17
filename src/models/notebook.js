@@ -9,7 +9,9 @@ class Notebook extends Model {
     return {
       type: "object",
       required: ["title", "user_id"],
+      additionalProperties: false,
       properties: {
+        id: { type: "integer", minimum: 1 },
         title: { type: "string", minLength: 1 },
         user_id: { type: "integer", minimum: 1 },
         position: { type: "number", minimum: 0 }

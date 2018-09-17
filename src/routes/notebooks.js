@@ -1,14 +1,15 @@
-const router = require("express").Router(),
+const { Router } = require("express"),
   Notebook = require("../models/notebook")
 
-module.exports = router
+module.exports = Router()
   .use((req, res, next) => {
-    if (!req.user) res.sendStatus(401)
+    req.ensureUserIsSignedIn()
     next()
   })
   // get notebooks belonging to a user
   .get("/", async (req, res) => {
     const notebooks = await Notebook.query()
+      .select("id", "title", "position")
       .where("user_id", req.user.id)
       .orderBy("position")
 
@@ -16,31 +17,25 @@ module.exports = router
   })
   // create a notebook
   .post("/", async (req, res) => {
-    const notebook = await Notebook.query().insert(
-      Object.assign({ user_id: req.user.id }, req.body)
-    )
+    const notebook = await Notebook.query()
+      .insert(Object.assign(req.body, { user_id: req.user.id }))
+      .pick(["id", "title", "position"])
 
     res.status(201).send(notebook)
   })
   // update notebook (title, position)
-  .patch("/:id", async (req, res) => {
-    const notebook = await Notebook.query().findById(req.params.id)
-    if (!notebook) return res.sendStatus(400)
-    if (req.user.id != notebook.user_id) return res.sendStatus(403)
+  .patch("/:notebookId", async (req, res) => {
+    await req.ensureNotebookBelongsToUser()
+    const notebook = await Notebook.query()
+      .patchAndFetchById(req.params.notebookId, req.body)
+      .pick(["id", "title", "position"])
 
-    await Notebook.query()
-      .patch(req.body)
-      .where("id", notebook.id)
-
-    res.end()
+    res.send(notebook)
   })
   // delete notebook
-  .delete("/:id", async (req, res) => {
-    const notebook = await Notebook.query().findById(req.params.id)
-    if (!notebook) return res.sendStatus(400)
-    if (req.user.id != notebook.user_id) return res.sendStatus(403)
+  .delete("/:notebookId", async (req, res) => {
+    await req.ensureNotebookBelongsToUser()
+    await Notebook.query().deleteById(req.params.notebookId)
 
-    await Notebook.query().deleteById(req.params.id)
-
-    res.end()
+    res.sendStatus(204)
   })

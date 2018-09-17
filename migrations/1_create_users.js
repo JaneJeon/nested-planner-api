@@ -5,7 +5,6 @@ exports.up = knex =>
       .string("email")
       .notNullable()
       .unique()
-    table.string("username").notNullable()
     table.string("password").notNullable()
   })
 
