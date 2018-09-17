@@ -1,6 +1,6 @@
 {
   "name": "todo-redux",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "main": "index.js",
   "author": "Jane Jeon",
   "license": "Apache-2.0",
@@ -31,7 +31,7 @@
     "supertest-session": "^3.3.0"
   },
   "scripts": {
-    "setup": "createdb todo",
+    "preinstall": "knex migrate:latest",
     "start": "node index.js",
     "dev": "DEBUG=knex nodemon index.js",
     "pretest": "knex migrate:latest && knex seed:run",
