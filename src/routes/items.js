@@ -1,101 +1,103 @@
 const { Router } = require("express"),
-  Item = require("../models/item"),
   { raw } = require("objection")
 
 module.exports = Router({ mergeParams: true })
-  .use(async (req, res, next) => {
-    req.ensureUserIsSignedIn()
-    await req.ensureNotebookBelongsToUser()
-    next()
-  })
+  .use((req, res, next) => req.ensureUserIsSignedIn(next))
   // get all items belonging to a notebook, sorted and nested
   .get("/", async (req, res) => {
-    const sort = req.query.sort == "DESC" ? "DESC" : "ASC"
-
     let items
+    const notebook = await req.user
+        .$relatedQuery("notebooks")
+        .findById(req.params.notebookId),
+      sort = (req.query.sort || "").toUpperCase() == "DESC" ? "DESC" : "ASC",
+      showCompleted = req.query.showCompleted == "true"
+
+    res.check(notebook)
+
     switch (req.query.view) {
       case "focus":
-        items = await Item.query()
+        items = await notebook
+          .$relatedQuery("items")
           .select("id", "position", "body", "completed", "important", "due")
-          .where("notebook_id", req.params.notebookId)
-          .andWhere("completed", false)
+          .where("completed", false)
           .andWhere("important", true)
           .orderBy("position", sort)
         break
       case "todo":
-        items = await Item.query()
+        items = await notebook
+          .$relatedQuery("items")
           .select("id", "position", "body", "completed", "important", "due")
-          .where("notebook_id", req.params.notebookId)
-          .andWhere("completed", false)
+          .where("completed", false)
           .andWhere(raw("due IS NOT NULL"))
           .orderBy("due", sort)
         break
       case "search":
-        items = await Item.query()
+        items = await notebook
+          .$relatedQuery("items")
           .select("id", "position", "body", "completed", "important", "due")
-          .from(raw("items, plainto_tsquery(?) query", req.query.q))
-          .where("notebook_id", req.params.notebookId)
-          .andWhereRaw("query @@ body_search")
+          .from(raw("items, plainto_tsquery(?) query", req.query.q)) // is this really going to work?
+          .whereRaw("query @@ body_search")
           .orderByRaw("ts_rank_cd(body_search, query) DESC")
         break
       default:
-        // for some reason prepared statements don't fucking work
-        items = (await Item.raw(`
-        WITH RECURSIVE cte AS (
-          SELECT id, parent_id, position, body, completed, important, due, 0 AS depth
-            FROM items
-            WHERE notebook_id = ${req.params.notebookId}
-            AND parent_id IS NULL
-            ${req.params.showCompleted ? "" : "AND completed = false"}
-          UNION ALL
-          SELECT i.*, cte.depth + 1
-            FROM items i
-            JOIN cte
-            ON i.parent_id = cte.id
-        )
-        SELECT *
-          FROM cte
-          ORDER BY depth, position ${sort}`)).rows
+        items = await notebook
+          .$relatedQuery("items")
+          .where("parent_id", null)
+          .eager("children.^")
+          .modifyEager("children.^", builder => {
+            showCompleted ? builder : builder.where("completed", false)
+            builder.orderBy("position")
+          })
+          .pick([
+            "id",
+            "parent_id",
+            "children",
+            "position",
+            "body",
+            "completed",
+            "important",
+            "due"
+          ])
     }
 
-    res.send(items)
+    res.check(items, 200)
   })
   // create an item belonging to a notebook
   .post("/", async (req, res) => {
-    const item = await Item.query()
-      .insert(Object.assign(req.body, { notebook_id: req.params.notebookId }))
-      .pick([
-        "id",
-        "parent_id",
-        "position",
-        "body",
-        "completed",
-        "important",
-        "due"
-      ])
+    const notebook = await req.user
+      .$relatedQuery("notebooks")
+      .findById(req.params.notebookId)
 
-    res.status(201).send(item)
+    res.check(notebook)
+
+    const item = await notebook.$relatedQuery("items").insert(req.body)
+
+    res.status(201).send({ id: item.id, position: item.position })
   })
   // modify the item
   .patch("/:itemId", async (req, res) => {
-    await req.ensureItemBelongsToNotebook()
-    const item = await Item.query()
-      .patchAndFetchById(req.params.itemId, req.body)
-      .pick([
-        "id",
-        "parent_id",
-        "position",
-        "body",
-        "completed",
-        "important",
-        "due"
-      ])
+    const notebook = await req.user
+      .$relatedQuery("notebooks")
+      .findById(req.params.notebookId)
 
-    res.send(item)
+    res.check(notebook)
+
+    const item = await notebook
+      .$relatedQuery("items")
+      .patchAndFetchById(req.params.itemId, req.body)
+
+    res.check(item, 204)
   })
   .delete("/:itemId", async (req, res) => {
-    await req.ensureItemBelongsToNotebook()
-    await Item.query().deleteById(req.params.itemId)
+    const notebook = await req.user
+      .$relatedQuery("notebooks")
+      .findById(req.params.notebookId)
 
-    res.sendStatus(204)
+    res.check(notebook)
+
+    const deleted = await notebook
+      .$relatedQuery("items")
+      .deleteById(req.params.itemId)
+
+    res.check(deleted, 204)
   })

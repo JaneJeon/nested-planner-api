@@ -3,7 +3,7 @@ const { Router } = require("express"),
 
 module.exports = Router()
   // login
-  .post("/", passport.authenticate("local"), (req, res) => res.sendStatus(204))
+  .post("/", passport.authenticate("local"), (req, res) => res.sendStatus(201))
   // logout
   .delete("/", (req, res) => {
     req.logout()

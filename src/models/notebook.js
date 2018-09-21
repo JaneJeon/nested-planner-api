@@ -8,13 +8,24 @@ class Notebook extends Model {
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["title", "user_id"],
+      required: ["title"],
       additionalProperties: false,
       properties: {
-        id: { type: "integer", minimum: 1 },
         title: { type: "string", minLength: 1 },
-        user_id: { type: "integer", minimum: 1 },
         position: { type: "number", minimum: 0 }
+      }
+    }
+  }
+
+  static get relationMappings() {
+    return {
+      items: {
+        relation: Model.HasManyRelation,
+        modelClass: require("./item"),
+        join: {
+          from: "notebooks.id",
+          to: "items.notebook_id"
+        }
       }
     }
   }

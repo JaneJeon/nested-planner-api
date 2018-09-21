@@ -20,10 +20,12 @@ exports.up = async knex => {
       .index()
     table
       .boolean("important")
+      .notNullable()
       .defaultTo(false)
       .index()
     table
       .boolean("completed")
+      .notNullable()
       .defaultTo(false)
       .index()
     table.text("body").notNullable()
@@ -33,16 +35,16 @@ exports.up = async knex => {
   await knex.raw(positionTrigger("items"))
   await knex.raw(`
     ALTER TABLE items ADD COLUMN body_search tsvector;
-
+    
     CREATE INDEX notebook_body_search_index ON items USING gin(body_search);
-
+    
     CREATE OR REPLACE FUNCTION body_index() RETURNS TRIGGER AS $$
       BEGIN
         NEW.body_search := to_tsvector(NEW.body);
         RETURN NEW;
       END;
     $$ LANGUAGE plpgsql;
-
+    
     CREATE TRIGGER body_index BEFORE INSERT OR UPDATE ON items
       FOR EACH ROW EXECUTE PROCEDURE body_index();`)
 }

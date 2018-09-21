@@ -1,6 +1,6 @@
 {
   "name": "todo-redux",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "author": "Jane Jeon",
   "license": "Apache-2.0",
@@ -9,6 +9,7 @@
     "body-parser": "^1.18.3",
     "connect-redis": "^3.3.3",
     "cors": "^2.8.4",
+    "db-errors": "^0.1.0",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "express-async-errors": "^3.0.0",
@@ -31,7 +32,7 @@
     "supertest-session": "^3.3.0"
   },
   "scripts": {
-    "preinstall": "knex migrate:latest",
+    "postinstall": "knex migrate:latest",
     "start": "node index.js",
     "dev": "DEBUG=knex nodemon index.js",
     "pretest": "knex migrate:latest && knex seed:run",

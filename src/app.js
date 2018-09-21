@@ -4,12 +4,11 @@ const { Model } = require("objection"),
   passport = require("passport"),
   { Strategy } = require("passport-local"),
   User = require("./models/user"),
-  Notebook = require("./models/notebook"),
-  Item = require("./models/item"),
   session = require("express-session"),
   RedisStore = require("connect-redis")(session),
   express = require("express"),
-  parser = require("body-parser")
+  parser = require("body-parser"),
+  { wrapError, DBError } = require("db-errors")
 
 require("express-async-errors")
 
@@ -44,31 +43,15 @@ const app = express()
   )
   .use(passport.initialize())
   .use(passport.session())
-  // helper middlewares
   .use((req, res, next) => {
-    if (req.body.hasOwnProperty("id"))
-      throw { code: 400, message: "Cannot set property 'id'" }
-    if (req.body.hasOwnProperty("user_id"))
-      throw { code: 400, message: "Cannot set property 'user_id'" }
-    if (req.body.hasOwnProperty("notebook_id"))
-      throw { code: 400, message: "Cannot set property 'notebook_id'" }
-
-    req.ensureUserIsSignedIn = function() {
-      if (!this.user) throw { code: 401 }
+    req.ensureUserIsSignedIn = function(next) {
+      if (this.isUnauthenticated()) throw { code: 401 }
+      next()
     }
-    req.ensureNotebookBelongsToUser = async function() {
-      const notebook = await Notebook.query().findById(this.params.notebookId)
-
-      if (!notebook) throw { code: 404 }
-      if (this.user.id != notebook.user_id) throw { code: 403 }
+    res.check = function(obj, code) {
+      if (!obj) throw { code: 404 }
+      if (code) this.status(code).send(obj)
     }
-    req.ensureItemBelongsToNotebook = async function() {
-      const item = await Item.query().findById(this.params.itemId)
-
-      if (!item) throw { code: 404 }
-      if (this.params.notebookId != item.notebook_id) throw { code: 403 }
-    }
-
     next()
   })
   .use("/sessions", require("./routes/sessions"))
@@ -98,19 +81,25 @@ if (process.env.NODE_ENV == "test")
 app
   .use("*", (req, res) => res.sendStatus(404))
   .use((err, req, res, next) => {
-    if (err.name == "ValidationError" || err.code == 400)
-      return res.status(400).send({ error: err.message })
-    else if (err.code > 400 && err.code < 500) return res.sendStatus(err.code)
-    // someone intentionally passed in invalid id types into path parameters
-    else if (err.code == "22P02")
-      return res
-        .status(400)
-        .send({ error: err.message.substr(err.message.indexOf("invalid")) })
-    // unique constraint violation
-    else if (err.code == 23505)
-      return res.status(409).send({ error: err.detail })
+    err = wrapError(err)
 
-    if (process.env.NODE_ENV != "test") console.error(err)
+    switch (err.name) {
+      case "DataError":
+      case "NotNullViolationError":
+      case "CheckViolationError":
+      case "ValidationError":
+        return res.status(400).send({ error: err.message })
+      case "UniqueViolationError":
+        return res.status(409).send({ error: `${err.columns} already exist` })
+      default:
+        if (err instanceof DBError && err.nativeError.code == "22P02")
+          return res
+            .status(400)
+            .send({ error: "path parameter(s) must be integer" })
+        if (err.code > 400 && err.code < 500) return res.sendStatus(err.code)
+    }
+
+    console.error(err)
     res.sendStatus(500)
   })
   .listen(process.env.PORT, err => {

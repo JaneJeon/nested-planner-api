@@ -617,6 +617,10 @@ dasherize@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/dasherize/-/dasherize-2.0.0.tgz#6d809c9cd0cf7bb8952d80fc84fa13d47ddb1308"
 
+db-errors@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/db-errors/-/db-errors-0.1.0.tgz#e3706bb988c7093c522141dcd1457a3aa5e01a54"
+
 debug-log@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/debug-log/-/debug-log-1.0.1.tgz#2307632d4c04382b8df8a32f70b895046d52745f"

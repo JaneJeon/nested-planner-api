@@ -12,9 +12,8 @@ class User extends Model {
       required: ["email", "password"],
       additionalProperties: false,
       properties: {
-        id: { type: "integer", minimum: 1 },
         email: { type: "string", format: "email" },
-        password: { type: "string", minLength: process.env.PASSWORD_LENGTH }
+        password: { type: "string", minLength: 9 }
       }
     }
   }
@@ -31,6 +30,19 @@ class User extends Model {
 
   async verifyPassword(password) {
     return argon2.verify(this.password, password)
+  }
+
+  static get relationMappings() {
+    return {
+      notebooks: {
+        relation: Model.HasManyRelation,
+        modelClass: require("./notebook"),
+        join: {
+          from: "users.id",
+          to: "notebooks.user_id"
+        }
+      }
+    }
   }
 }
 
