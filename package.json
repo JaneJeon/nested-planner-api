@@ -1,9 +1,11 @@
 {
-  "name": "nested-planner",
+  "name": "nested-planner-api",
   "version": "1.2.0",
   "main": "index.js",
   "author": "Jane Jeon",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/JaneJeon/nested-planner-api",
+  "repository": "JaneJeon/nested-planner-api",
   "dependencies": {
     "argon2": "^0.19.3",
     "body-parser": "^1.18.3",
