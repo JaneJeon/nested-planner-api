@@ -9,7 +9,7 @@ describe("app:/users", () => {
           email: "me@example.com",
           password: "123456789"
         })
-        .expect(204, done)
+        .expect(201, done)
     }))
 
   describe("PATCH /", () =>

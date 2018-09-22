@@ -1,6 +1,6 @@
 {
   "name": "todo-redux",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "main": "index.js",
   "author": "Jane Jeon",
   "license": "Apache-2.0",
@@ -35,7 +35,7 @@
     "postinstall": "knex migrate:latest",
     "start": "node index.js",
     "dev": "DEBUG=knex nodemon index.js",
-    "pretest": "knex migrate:latest && knex seed:run",
+    "pretest": "echo FLUSHALL | redis-cli && psql -d todo -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public' && knex migrate:latest && knex seed:run",
     "test": "NODE_ENV=test nyc --include src mocha --recursive --bail --exit --slow 500 --check-leaks"
   }
 }

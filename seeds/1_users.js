@@ -11,10 +11,9 @@ exports.seed = async knex => {
   const instance = User.fromJson(user)
   await instance.$beforeInsert()
   await knex("users").insert([
-    Object.assign(instance, { id: 1 }),
+    instance,
     // this person is strictly used to test rights for notebooks table
     {
-      id: 2,
       email: "test2@example.com",
       password: "123123123"
     }

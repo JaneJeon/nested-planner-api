@@ -57,7 +57,7 @@ describe("app:/notebooks/:notebookId/items", () => {
             .get("/notebooks/1/items")
             .expect(200)
             .then(response => {
-              expect(response.body[0]).to.have.length(2)
+              expect(response.body[0].children).to.have.length(2)
               done()
             })
             .catch(done)
@@ -67,10 +67,10 @@ describe("app:/notebooks/:notebookId/items", () => {
       context("showCompleted=false", () =>
         it("should fetch tree view with completed items", done => {
           session
-            .get("/notebooks/1/items?showCompleted=false")
+            .get("/notebooks/1/items?showCompleted=true")
             .expect(200)
             .then(response => {
-              expect(response.body[0]).to.have.length(3)
+              expect(response.body[0].children).to.have.length(3)
               done()
             })
             .catch(done)
@@ -80,31 +80,27 @@ describe("app:/notebooks/:notebookId/items", () => {
   })
 
   describe("POST /", () =>
-    it("should create item and return it", done => {
+    it("should create item and return partial", done => {
       session
         .post("/notebooks/1/items")
-        .send({ notebook_id: 1, body: "hello" })
+        .send({ body: "hello" })
         .expect(201)
         .then(response => {
-          expect(response).to.haveOwnProperty("id")
-          expect(response.body).to.equal("hello")
+          expect(response.body).to.haveOwnProperty("id")
+          expect(response.body).to.haveOwnProperty("position")
+          expect(response.body).to.not.haveOwnProperty("body")
+          expect(response.body).to.not.haveOwnProperty("notebook_id")
           done()
         })
         .catch(done)
     }))
 
   describe("PATCH /:itemId", () =>
-    it("should update item and return it", done => {
+    it("should update item", done => {
       session
         .patch("/notebooks/1/items/2")
         .send({ body: "world" })
-        .expect(200)
-        .then(response => {
-          expect(response).to.haveOwnProperty("parent_id")
-          expect(response.body).to.equal("world")
-          done()
-        })
-        .catch(done)
+        .expect(204, done)
     }))
 
   describe("DELETE /:itemId", () =>

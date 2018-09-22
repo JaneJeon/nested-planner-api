@@ -1,6 +1,6 @@
 require("dotenv").config()
 
-const { Model } = require("objection"),
+const { Model, ValidationError } = require("objection"),
   passport = require("passport"),
   { Strategy } = require("passport-local"),
   User = require("./models/user"),
@@ -8,7 +8,14 @@ const { Model } = require("objection"),
   RedisStore = require("connect-redis")(session),
   express = require("express"),
   parser = require("body-parser"),
-  { wrapError, DBError } = require("db-errors")
+  {
+    wrapError,
+    DBError,
+    CheckViolationError,
+    DataError,
+    NotNullViolationError,
+    UniqueViolationError
+  } = require("db-errors")
 
 require("express-async-errors")
 
@@ -50,7 +57,10 @@ const app = express()
     }
     res.check = function(obj, code) {
       if (!obj) throw { code: 404 }
-      if (code) this.status(code).send(obj)
+      if (code)
+        typeof obj == "object"
+          ? this.status(code).send(obj)
+          : this.sendStatus(code)
     }
     next()
   })
@@ -61,20 +71,16 @@ const app = express()
 
 if (process.env.NODE_ENV == "test")
   app
-    .post("/", (req, res) => res.end())
+    .get("/", (req, res) => res.end())
     .get("/error", () => {
       throw new Error()
     })
-    .get("/test", (req, res) => {
-      req.ensureUserIsSignedIn()
+    .post("/check", (req, res) => {
+      res.check(req.body.foo, req.body.code)
       res.end()
     })
-    .get("/test/:notebookId", async (req, res) => {
-      await req.ensureNotebookBelongsToUser()
-      res.end()
-    })
-    .get("/test/:notebookId/:itemId", async (req, res) => {
-      await req.ensureItemBelongsToNotebook()
+    .get("/restricted", (req, res, next) => {
+      req.ensureUserIsSignedIn(next)
       res.end()
     })
 
@@ -83,23 +89,22 @@ app
   .use((err, req, res, next) => {
     err = wrapError(err)
 
-    switch (err.name) {
-      case "DataError":
-      case "NotNullViolationError":
-      case "CheckViolationError":
-      case "ValidationError":
-        return res.status(400).send({ error: err.message })
-      case "UniqueViolationError":
-        return res.status(409).send({ error: `${err.columns} already exist` })
-      default:
-        if (err instanceof DBError && err.nativeError.code == "22P02")
-          return res
-            .status(400)
-            .send({ error: "path parameter(s) must be integer" })
-        if (err.code > 400 && err.code < 500) return res.sendStatus(err.code)
-    }
+    if (
+      err instanceof ValidationError ||
+      err instanceof DataError ||
+      err instanceof NotNullViolationError ||
+      err instanceof CheckViolationError
+    )
+      return res.status(400).send({ error: err.message })
+    else if (err instanceof UniqueViolationError)
+      return res.status(409).send({ error: `${err.columns} already exist` })
+    else if (err instanceof DBError && err.nativeError.code == "22P02")
+      return res.status(400).send({ error: "path parameters must be integer" })
+    else if (err.code > 400 && err.code < 500) return res.sendStatus(err.code)
+    else if (err.message.startsWith("Empty .update() call detected"))
+      return res.status(400).send({ error: "request body cannot be empty" })
 
-    console.error(err)
+    if (process.env.NODE_ENV != "test") console.error(err)
     res.sendStatus(500)
   })
   .listen(process.env.PORT, err => {

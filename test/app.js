@@ -8,57 +8,55 @@ describe("app", () => {
   before(done => {
     session
       .post("/sessions")
-      .send({ email: user.email, password: user.password })
+      .send(user)
       .end(done)
   })
 
   it("should run", done => {
     request(app)
-      .post("/")
+      .get("/")
       .expect(200, done)
   })
 
   context("when route is unmatched", () =>
     it("should 404", done => {
       request(app)
-        .get("/dne")
+        .get("/doesnotexist")
         .expect(404, done)
     })
   )
 
-  context("when trying to set id via req.body", () =>
+  context("when request body is empty", () =>
     it("should reject with message", done => {
-      request(app)
-        .post("/")
-        .send({ id: 1 })
-        .expect(400, { error: "Cannot set property 'id'" }, done)
+      session
+        .patch("/users")
+        .expect(400)
+        .then(response => {
+          expect(response.body.error).to.be.a("string")
+          done()
+        })
+        .catch(done)
     })
   )
 
-  context("when trying to set user_id via req.body", () =>
-    it("should reject with message", done => {
-      request(app)
-        .post("/")
-        .send({ user_id: null })
-        .expect(400, { error: "Cannot set property 'user_id'" }, done)
-    })
-  )
-
-  context("when trying to set notebook_id via req.body", () =>
-    it("should reject with message", done => {
-      request(app)
-        .post("/")
-        .send({ notebook_id: true })
-        .expect(400, { error: "Cannot set property 'notebook_id'" }, done)
-    })
-  )
-
-  // e.g. wrong data type, wrong fields, etc.
   context("when request body fails validation", () =>
     it("should reject with message", done => {
-      request(app)
-        .post("/users")
-        .send({ password: "short" })
+      session
+        .patch("/users")
+        .send({ email: "foo@bar.com", password: 123456789 })
+        .expect(400)
+        .then(response => {
+          expect(response.body.error).to.be.a("string")
+          done()
+        })
+        .catch(done)
+    })
+  )
+
+  context("when a path parameter is of wrong type", () =>
+    it("should reject with message", done => {
+      session
+        .get("/notebooks/asdf/items")
         .expect(400)
         .then(response => {
           expect(response.body.error).to.be.a("string")
@@ -70,24 +68,10 @@ describe("app", () => {
 
   context("when unique constraint fails", () =>
     it("should reject with message", done => {
-      delete user.id
-
       request(app)
         .post("/users")
         .send(user)
-        .expect(
-          409,
-          { error: "Key (email)=(test@example.com) already exists." },
-          done
-        )
-    })
-  )
-
-  context("when a path parameter is of wrong type", () =>
-    it("should reject with message", done => {
-      session
-        .get("/test/asdf")
-        .expect(400)
+        .expect(409)
         .then(response => {
           expect(response.body.error).to.be.a("string")
           done()
@@ -104,61 +88,60 @@ describe("app", () => {
     })
   )
 
-  describe("req", () => {
-    describe("#ensureUserIsSignedIn()", () => {
+  describe("middlewares", () => {
+    describe("req#ensureUserIsSignedIn()", () => {
       context("when user is signed in", () =>
         it("should pass the request", done => {
-          session.get("/test").expect(200, done)
+          session.get("/restricted").expect(404, done)
         })
       )
 
       context("when user is not signed in", () =>
         it("should fail the request", done => {
           request(app)
-            .get("/test")
+            .get("/restricted")
             .expect(401, done)
         })
       )
     })
+  })
 
-    describe("#ensureNotebookBelongsToUser()", () => {
-      context("when notebook belongs to user", () =>
+  describe("res#check()", () => {
+    context("when the object is not empty", () => {
+      context("when status code is passed in", () =>
+        it("should end the request with that code", done => {
+          request(app)
+            .post("/check")
+            .send({ foo: "bar", code: 418 })
+            .expect(418, done)
+        })
+      )
+
+      context("when status code is not passed in", () =>
         it("should pass the request", done => {
-          session.get("/test/1").expect(200, done)
-        })
-      )
-
-      context("when notebook does not exist", () =>
-        it("should fail the request", done => {
-          session.get("/test/100").expect(404, done)
-        })
-      )
-
-      context("when notebook does not belong to user", () =>
-        it("should fail the request", done => {
-          session.get("/test/3").expect(403, done)
+          request(app)
+            .post("/check")
+            .send({ foo: "bar" })
+            .expect(200, done)
         })
       )
     })
 
-    describe("#ensureItemBelongsToNotebook()", () => {
-      context("when item belongs to notebook", () =>
-        it("should pass the request", done => {
-          session.get("/test/1/1").expect(200, done)
-        })
-      )
+    context("when the object is a number", () =>
+      it("should end the request with code", done => {
+        request(app)
+          .post("/check")
+          .send({ foo: 1, code: 418 })
+          .expect(418, done)
+      })
+    )
 
-      context("when item does not exist", () =>
-        it("should fail the request", done => {
-          session.get("/test/1/100").expect(404, done)
-        })
-      )
-
-      context("when item does not belong to notebook", () =>
-        it("should fail the request", done => {
-          session.get("/test/1/6").expect(403, done)
-        })
-      )
-    })
+    context("when the object is empty", () =>
+      it("should reject", done => {
+        request(app)
+          .post("/check")
+          .expect(404, done)
+      })
+    )
   })
 })

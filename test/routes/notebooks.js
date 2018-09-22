@@ -25,14 +25,13 @@ describe("app:/notebooks", () => {
     }))
 
   describe("POST /", () =>
-    it("should create notebook and return it", done => {
+    it("should create notebook and return partial", done => {
       session
         .post("/notebooks")
         .send({ title: "ok" })
         .expect(201)
         .then(response => {
           expect(response.body).to.have.property("id")
-          expect(response.body).to.have.property("title", "ok")
           expect(response.body).to.not.have.property("user_id")
           done()
         })
@@ -40,18 +39,11 @@ describe("app:/notebooks", () => {
     }))
 
   describe("PATCH /:id", () =>
-    it("should update notebook and return it", done => {
+    it("should update notebook", done => {
       session
         .patch("/notebooks/1")
         .send({ title: "ok2", position: 0.5 })
-        .expect(200)
-        .then(response => {
-          expect(response.body).to.have.property("id", 1)
-          expect(response.body).to.have.property("position", 0.5)
-          expect(response.body).to.not.have.property("user_id")
-          done()
-        })
-        .catch(done)
+        .expect(204, done)
     }))
 
   describe("DELETE /:id", () =>

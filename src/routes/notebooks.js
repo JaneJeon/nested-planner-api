@@ -13,9 +13,13 @@ module.exports = Router()
   })
   // create a notebook
   .post("/", async (req, res) => {
-    const notebook = await req.user.$relatedQuery("notebooks").insert(req.body)
+    const notebook = await req.user
+      .$relatedQuery("notebooks")
+      .insert(req.body)
+      .returning(["id", "position"])
+      .pick(["id", "position"])
 
-    res.status(201).send({ id: notebook.id, position: notebook.id })
+    res.status(201).send(notebook)
   })
   // update notebook (title, position)
   .patch("/:notebookId", async (req, res) => {

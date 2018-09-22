@@ -70,9 +70,13 @@ module.exports = Router({ mergeParams: true })
 
     res.check(notebook)
 
-    const item = await notebook.$relatedQuery("items").insert(req.body)
+    const item = await notebook
+      .$relatedQuery("items")
+      .insert(req.body)
+      .returning(["id", "position"])
+      .pick(["id", "position"])
 
-    res.status(201).send({ id: item.id, position: item.position })
+    res.status(201).send(item)
   })
   // modify the item
   .patch("/:itemId", async (req, res) => {

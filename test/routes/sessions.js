@@ -7,7 +7,7 @@ describe("app:/sessions", () => {
       session
         .post("/sessions")
         .send(user)
-        .expect(204, done)
+        .expect(201, done)
     }))
 
   describe("DELETE /", () =>
