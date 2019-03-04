@@ -24,14 +24,6 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      - run: |
-          sudo apt-get install redis-tools
-          while ! redis-cli ping 2>/dev/null ; do sleep 1 ; done
-
-      - run: |
-          psql -d todo -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public'
-          echo FLUSHALL | redis-cli
-
       - checkout
 
       # Download and cache dependencies
