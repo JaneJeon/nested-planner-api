@@ -9,6 +9,9 @@ jobs:
       # specify the version you desire here
       - image: circleci/node:10
         environment:
+          PGHOST: 127.0.0.1
+          PGUSER: knex
+          NODE_ENV: test
           REDIS_URL: redis://localhost
           DATABASE_URL: postgres://localhost/todo
           PORT: 3000
@@ -16,7 +19,7 @@ jobs:
       - image: circleci/redis:5
       - image: circleci/postgres:11
         environment:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: knex
           POSTGRES_DB: todo
 
       # Specify service dependencies here if necessary
