@@ -10,11 +10,9 @@ jobs:
       - image: circleci/node:10
         environment:
           REDIS_URL: redis://localhost
-          DATABASE_URL: postgres://root@localhost/todo
+          DATABASE_URL: postgres://localhost/todo
           PORT: 3000
           SESSION_SECRET: shhh
-
-          POSTGRES_USER: root
           POSTGRES_DB: todo
       - image: circleci/redis:5
       - image: circleci/postgres:11
