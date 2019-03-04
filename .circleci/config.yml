@@ -13,9 +13,10 @@ jobs:
           DATABASE_URL: postgres://localhost/todo
           PORT: 3000
           SESSION_SECRET: shhh
-          POSTGRES_DB: todo
       - image: circleci/redis:5
       - image: circleci/postgres:11
+        environment:
+          POSTGRES_DB: todo
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -28,7 +29,7 @@ jobs:
       - checkout
 
       # - run: apt-get update
-      # - run: apt-get install postgresql-client-11 -y
+      # - run: apt-get install postgresql-client -y
       # - run: psql -U postgres -c "create database todo"
 
       # Download and cache dependencies
