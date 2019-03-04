@@ -36,7 +36,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "DEBUG=knex nodemon index.js",
-    "pretest": "echo FLUSHALL | redis-cli && psql -d todo -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public' && knex migrate:latest && knex seed:run",
+    "pretest": "knex migrate:latest && knex seed:run",
     "test": "NODE_ENV=test nyc --include src mocha --recursive --bail --exit --slow 500 --check-leaks"
   }
 }

@@ -8,6 +8,11 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:10
+        environment:
+          REDIS_URL=redis://localhost
+          DATABASE_URL=postgres://localhost/todo
+          PORT=3000
+          SESSION_SECRET=shhh
       - image: circleci/redis:5
       - image: circleci/postgres:11
 
@@ -19,6 +24,15 @@ jobs:
     working_directory: ~/repo
 
     steps:
+      - run: |
+          sudo apt-get install redis-tools
+          while ! redis-cli ping 2>/dev/null ; do sleep 1 ; done
+
+      - run: |
+          dropdb todo
+          createdb todo
+          echo FLUSHALL | redis-cli
+
       - checkout
 
       # Download and cache dependencies
