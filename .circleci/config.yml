@@ -29,8 +29,7 @@ jobs:
           while ! redis-cli ping 2>/dev/null ; do sleep 1 ; done
 
       - run: |
-          dropdb todo
-          createdb todo
+          psql -d todo -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public'
           echo FLUSHALL | redis-cli
 
       - checkout
