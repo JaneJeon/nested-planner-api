@@ -9,10 +9,10 @@ jobs:
       # specify the version you desire here
       - image: circleci/node:10
         environment:
-          REDIS_URL=redis://localhost
-          DATABASE_URL=postgres://root@localhost/todo
-          PORT=3000
-          SESSION_SECRET=shhh
+          REDIS_URL: redis://localhost
+          DATABASE_URL: postgres://root@localhost/todo
+          PORT: 3000
+          SESSION_SECRET: shhh
 
           POSTGRES_USER: root
           POSTGRES_DB: todo
@@ -28,6 +28,10 @@ jobs:
 
     steps:
       - checkout
+
+      # - run: apt-get update
+      # - run: apt-get install postgresql-client-11 -y
+      # - run: psql -U postgres -c "create database todo"
 
       # Download and cache dependencies
       - restore_cache:
