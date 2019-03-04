@@ -1,4 +1,6 @@
 # Nested Planner
+[![CircleCI](https://circleci.com/gh/JaneJeon/nested-planner-api.svg?style=svg)](https://circleci.com/gh/JaneJeon/nested-planner-api)
+
 This planner stores items in a hierarchy so that you can organize better, and allows you to query it as a tree or as a list, depending on your need.
 
 ## Supported Operations
