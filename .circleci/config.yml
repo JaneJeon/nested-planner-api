@@ -16,6 +16,7 @@ jobs:
       - image: circleci/redis:5
       - image: circleci/postgres:11
         environment:
+          POSTGRES_USER: postgres
           POSTGRES_DB: todo
 
       # Specify service dependencies here if necessary
