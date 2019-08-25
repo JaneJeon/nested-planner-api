@@ -12,7 +12,7 @@
     "connect-redis": "^3.3.3",
     "cors": "^2.8.4",
     "db-errors": "^0.1.0",
-    "dotenv": "^6.0.0",
+    "dotenv": "^8.1.0",
     "express": "^4.16.3",
     "express-async-errors": "^3.0.0",
     "express-session": "^1.15.6",
