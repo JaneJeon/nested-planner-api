@@ -705,10 +705,10 @@ dasherize@2.0.0:
   resolved "https://registry.yarnpkg.com/dasherize/-/dasherize-2.0.0.tgz#6d809c9cd0cf7bb8952d80fc84fa13d47ddb1308"
   integrity sha1-bYCcnNDPe7iVLYD8hPoT1H3bEwg=
 
-db-errors@^0.1.0:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/db-errors/-/db-errors-0.1.1.tgz#7fed5164f7822135ba655c73ed4f32277964920d"
-  integrity sha512-/yyJI6OAZg/KPBfG9TMgqV9m8W79XjkfZk++wChdeWxkwn3BvV5d6+aEkO8flh/tHMnasZ5k36bjliHuqHvFyw==
+db-errors@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/db-errors/-/db-errors-0.2.3.tgz#a6a38952e00b20e790f2695a6446b3c65497ffa2"
+  integrity sha512-OOgqgDuCavHXjYSJoV2yGhv6SeG8nk42aoCSoyXLZUH7VwFG27rxbavU1z+VrZbZjphw5UkDQwUlD21MwZpUng==
 
 debug@2.6.9, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
