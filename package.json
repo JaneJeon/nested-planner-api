@@ -31,7 +31,7 @@
     "nodemon": "^1.18.4",
     "nyc": "^13.0.1",
     "supertest": "^4.0.2",
-    "supertest-session": "^3.3.0"
+    "supertest-session": "^4.0.0"
   },
   "scripts": {
     "start": "node index.js",

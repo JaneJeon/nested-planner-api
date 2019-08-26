@@ -614,7 +614,7 @@ cookie@0.3.1:
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.3.1.tgz#e7e0a1f9ef43b4c8ba925c5c5a96e806d16873bb"
   integrity sha1-5+Ch+e9DtMi6klxcWpboBtFoc7s=
 
-cookiejar@^2.0.1, cookiejar@^2.1.0:
+cookiejar@^2.1.0:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/cookiejar/-/cookiejar-2.1.2.tgz#dd8a235530752f988f9a0844f3fc589e3111125c"
   integrity sha512-Mw+adcfzPxcPeI+0WlvRrr/3lGVO0bD75SxX6811cxSh1Wbxx7xZBGK1eVtDf6si8rg2lhnUjsVLMFMfbRIuwA==
@@ -3273,17 +3273,14 @@ superagent@^3.8.3:
     qs "^6.5.1"
     readable-stream "^2.3.5"
 
-supertest-session@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/supertest-session/-/supertest-session-3.3.0.tgz#37a71541e054db307bbbfbfec8335909a6e6c913"
-  integrity sha512-i6vqLtPkR5SUHqhhWo9Q+RkQNWn0Zs9DNlFcxUg32NC8Nh8d3hiEQ4Mp/ef0oPkkxqCjV5V4FjQYk4Q+9YC7jA==
+supertest-session@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/supertest-session/-/supertest-session-4.0.0.tgz#3b442cbc37ede15a4acf7f8c570b836d880f8a40"
+  integrity sha512-9d7KAL+K9hnnicov7USv/Nu1tSl40qSrOsB8zZHOEtfEzHaAoID6tbl1NeCVUg7SJreJMlNn+KJ88V7FW8gD6Q==
   dependencies:
-    cookiejar "^2.0.1"
-    methods "^1.1.1"
     object-assign "^4.0.1"
-    supertest "^3.1.0"
 
-supertest@^3.1.0:
+supertest@^3.3.0:
   version "3.4.2"
   resolved "https://registry.yarnpkg.com/supertest/-/supertest-3.4.2.tgz#bad7de2e43d60d27c8caeb8ab34a67c8a5f71aad"
   integrity sha512-WZWbwceHUo2P36RoEIdXvmqfs47idNNZjCuJOqDz6rvtkk8ym56aU5oglORCpPeXGxT7l9rkJ41+O1lffQXYSA==
