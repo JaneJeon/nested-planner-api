@@ -9,7 +9,7 @@
   "dependencies": {
     "argon2": "^0.24.0",
     "body-parser": "^1.18.3",
-    "connect-redis": "^3.3.3",
+    "connect-redis": "^3.4.2",
     "cors": "^2.8.4",
     "dotenv": "^8.1.0",
     "db-errors": "^0.2.3",
