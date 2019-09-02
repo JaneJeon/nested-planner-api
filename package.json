@@ -9,7 +9,7 @@
   "dependencies": {
     "argon2": "^0.24.0",
     "body-parser": "^1.19.0",
-    "connect-redis": "^3.3.3",
+    "connect-redis": "^3.4.2",
     "cors": "^2.8.4",
     "dotenv": "^8.1.0",
     "db-errors": "^0.2.3",
@@ -18,7 +18,7 @@
     "express-session": "^1.16.2",
     "helmet": "^3.20.0",
     "knex": "^0.19.3",
-    "objection": "^1.2.6",
+    "objection": "^1.6.9",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "pg": "^7.12.1"
@@ -28,7 +28,7 @@
     "chai-as-promised": "^7.1.1",
     "faker": "^4.1.0",
     "mocha": "^6.2.0",
-    "nodemon": "^1.18.4",
+    "nodemon": "^1.19.1",
     "nyc": "^13.0.1",
     "supertest": "^4.0.2",
     "supertest-session": "^4.0.0"
