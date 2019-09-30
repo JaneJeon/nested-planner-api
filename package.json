@@ -28,7 +28,7 @@
     "chai-as-promised": "^7.1.1",
     "faker": "^4.1.0",
     "mocha": "^6.2.0",
-    "nodemon": "^1.19.2",
+    "nodemon": "^1.19.3",
     "nyc": "^14.1.1",
     "supertest": "^4.0.2",
     "supertest-session": "^4.0.0"
