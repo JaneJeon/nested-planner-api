@@ -17,7 +17,7 @@
     "express-async-errors": "^3.0.0",
     "express-session": "^1.17.0",
     "helmet": "^3.21.2",
-    "knex": "^0.19.5",
+    "knex": "^0.20.0",
     "objection": "^1.6.11",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
