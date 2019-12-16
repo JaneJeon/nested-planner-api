@@ -2431,10 +2431,10 @@ object.pick@^1.2.0, object.pick@^1.3.0:
   dependencies:
     isobject "^3.0.1"
 
-objection@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/objection/-/objection-2.0.3.tgz#32a535247f6faa0eb185d12f2b70f65da4a3e1b2"
-  integrity sha512-pr4cmyECTL2eXJ+NtLLL1GgzCeSRpTW6iCOLsGGmwfIjp/Z0Wm3LXsc/SIv+KUlaggG9uIPSg1NcMNwq9EUlhA==
+objection@^2.0.7:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/objection/-/objection-2.0.7.tgz#b74386a8be7ef8882de8694d3f9d7e29ab232c31"
+  integrity sha512-WRCuGE45K04QhovQ4R9Zs2CsneqbbYMmLdpyQIgUKAzkqPNk8swDFr5VlXEW7NEAZ33xiH7PMDli16e65nWGwA==
   dependencies:
     ajv "^6.10.2"
     db-errors "^0.2.3"
