@@ -18,7 +18,7 @@
     "express-session": "^1.17.0",
     "helmet": "^3.21.2",
     "knex": "^0.20.4",
-    "objection": "^2.0.7",
+    "objection": "^2.0.10",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "pg": "^7.15.1"
